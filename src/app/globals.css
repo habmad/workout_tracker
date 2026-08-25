@@ -131,13 +131,14 @@ input {
   z-index: 10;
   display: grid;
   gap: 0.35rem;
-  padding: 0.55rem 0 0.75rem;
-  background: linear-gradient(
-    to bottom,
-    var(--bg) 65%,
-    color-mix(in srgb, var(--bg) 70%, transparent)
-  );
-  backdrop-filter: blur(8px);
+  /* Bleed into page padding so sticky bar isn't an inset rectangle */
+  margin-inline: calc(-1 * var(--pad));
+  margin-top: calc(-1 * (var(--pad) + env(safe-area-inset-top)));
+  padding: calc(0.55rem + env(safe-area-inset-top)) var(--pad) 0.85rem;
+  /* Let the page gradient show through — no solid opaque slab */
+  background: color-mix(in srgb, var(--bg) 45%, transparent);
+  backdrop-filter: blur(16px) saturate(1.15);
+  -webkit-backdrop-filter: blur(16px) saturate(1.15);
 }
 
 .sticky-header h1 {
