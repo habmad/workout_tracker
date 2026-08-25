@@ -162,7 +162,7 @@ export function WorkoutClient({ day }: { day: WorkoutDay }) {
         ))}
       </div>
 
-      <footer className="workout-footer">
+      <div className="workout-end">
         <button
           type="button"
           className="primary-btn"
@@ -171,7 +171,7 @@ export function WorkoutClient({ day }: { day: WorkoutDay }) {
         >
           {done ? "Workout complete" : completing ? "Saving…" : "Finish workout"}
         </button>
-      </footer>
+      </div>
     </main>
   );
 }
