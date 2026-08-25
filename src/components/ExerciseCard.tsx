@@ -16,11 +16,9 @@ function formatLast(set: SetLogDTO | undefined): string {
   if (!set) return "—";
   if (set.note) return set.note;
   if (set.reps == null && set.weight == null) return "—";
-  // Burn / timed: weight only
   if (set.reps == null && set.weight != null) return `${set.weight} kg`;
-  // Bodyweight / AMAP style: reps only
   if (set.weight == null && set.reps != null) return `${set.reps} reps`;
-  return `${set.reps} × ${set.weight}`;
+  return `${set.reps}×${set.weight}`;
 }
 
 export function ExerciseCard({
@@ -48,29 +46,40 @@ export function ExerciseCard({
   return (
     <section className="exercise-card">
       <header className="exercise-header">
-        <h2>{exercise.name}</h2>
-        <p className="exercise-meta">
-          {exercise.kind === "burn"
-            ? `5 min · ${exercise.targetReps}`
-            : exercise.kind === "amap"
-              ? `${exercise.targetSets} sets · AMAP`
-              : `${exercise.targetSets} × ${exercise.targetReps}`}
-        </p>
+        <div className="exercise-title-row">
+          <h2>{exercise.name}</h2>
+          <p className="exercise-meta">
+            {exercise.kind === "burn"
+              ? `5 min · ${exercise.targetReps}`
+              : exercise.kind === "amap"
+                ? `${exercise.targetSets} · AMAP`
+                : `${exercise.targetSets} × ${exercise.targetReps}`}
+          </p>
+        </div>
       </header>
 
-      {Array.from({ length: setCount }, (_, i) => (
-        <SetRow
-          key={`${exercise.id}-${i}`}
-          label={exercise.kind === "burn" ? "Burn" : `Set ${i + 1}`}
-          lastLabel={formatLast(prevByIndex.get(i))}
-          showNote={exercise.kind === "burn"}
-          initial={byIndex.get(i)}
-          sessionId={sessionId}
-          exerciseId={exercise.id}
-          setIndex={i}
-          onSetSaved={onSetSaved}
-        />
-      ))}
+      <div className="set-table" role="table" aria-label={`${exercise.name} sets`}>
+        <div className="set-table-head" role="row">
+          <span role="columnheader">Set</span>
+          <span role="columnheader">Last</span>
+          <span role="columnheader">Reps</span>
+          <span role="columnheader">kg</span>
+        </div>
+
+        {Array.from({ length: setCount }, (_, i) => (
+          <SetRow
+            key={`${exercise.id}-${i}`}
+            label={exercise.kind === "burn" ? "B" : String(i + 1)}
+            lastLabel={formatLast(prevByIndex.get(i))}
+            showNote={exercise.kind === "burn"}
+            initial={byIndex.get(i)}
+            sessionId={sessionId}
+            exerciseId={exercise.id}
+            setIndex={i}
+            onSetSaved={onSetSaved}
+          />
+        ))}
+      </div>
     </section>
   );
 }
@@ -151,27 +160,21 @@ function SetRow({
   }, []);
 
   return (
-    <div className="set-row">
-      <div className="set-row-top">
-        <span className="set-label">{label}</span>
-        <span className="last-time">Last: {lastLabel}</span>
-        <span className={`save-status ${status}`}>
-          {status === "saving"
-            ? "Saving…"
-            : status === "saved"
-              ? "Saved"
-              : status === "error"
-                ? "Retry"
-                : ""}
+    <div className={`set-row${status === "saved" ? " is-saved" : ""}${status === "error" ? " is-error" : ""}`}>
+      <div className="set-row-main" role="row">
+        <span className="set-num" role="cell">
+          {label}
         </span>
-      </div>
-      <div className="set-inputs">
-        <label>
-          <span>Reps</span>
+        <span className="last-time" role="cell" title={`Last: ${lastLabel}`}>
+          {lastLabel}
+        </span>
+        <label className="set-field" role="cell">
+          <span className="sr-only">Reps</span>
           <input
             inputMode="numeric"
             type="number"
             min={0}
+            placeholder="—"
             value={reps}
             onChange={(e) => {
               const v = e.target.value;
@@ -180,13 +183,14 @@ function SetRow({
             }}
           />
         </label>
-        <label>
-          <span>Weight</span>
+        <label className="set-field" role="cell">
+          <span className="sr-only">Weight kg</span>
           <input
             inputMode="decimal"
             type="number"
             min={0}
             step="any"
+            placeholder="—"
             value={weight}
             onChange={(e) => {
               const v = e.target.value;
@@ -198,10 +202,10 @@ function SetRow({
       </div>
       {showNote && (
         <label className="note-field">
-          <span>Note</span>
+          <span className="sr-only">Note</span>
           <input
             type="text"
-            placeholder="Optional note"
+            placeholder="Note (optional)"
             value={note}
             onChange={(e) => {
               const v = e.target.value;
@@ -211,6 +215,15 @@ function SetRow({
           />
         </label>
       )}
+      <span className={`save-status ${status}`} aria-live="polite">
+        {status === "saving"
+          ? "Saving…"
+          : status === "saved"
+            ? "Saved"
+            : status === "error"
+              ? "Retry"
+              : ""}
+      </span>
     </div>
   );
 }

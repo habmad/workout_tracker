@@ -130,14 +130,23 @@ input {
   top: 0;
   z-index: 10;
   display: grid;
-  gap: 0.5rem;
-  padding: 0.75rem 0 1rem;
+  gap: 0.35rem;
+  padding: 0.55rem 0 0.75rem;
   background: linear-gradient(
     to bottom,
     var(--bg) 65%,
     color-mix(in srgb, var(--bg) 70%, transparent)
   );
   backdrop-filter: blur(8px);
+}
+
+.sticky-header h1 {
+  font-size: clamp(1.55rem, 6.5vw, 2rem);
+  margin-top: 0.1rem;
+}
+
+.sticky-header .muted {
+  font-size: 0.82rem;
 }
 
 .back-link {
@@ -156,61 +165,156 @@ input {
 
 .exercise-list {
   display: grid;
-  gap: 1rem;
+  gap: 0.85rem;
 }
 
 .exercise-card {
-  padding: 1rem;
+  padding: 0.85rem 0.9rem 0.65rem;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--bg-elevated);
 }
 
 .exercise-header {
-  margin-bottom: 0.85rem;
+  margin-bottom: 0.55rem;
+}
+
+.exercise-title-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
 }
 
 .exercise-header h2 {
   font-family: var(--font-display), sans-serif;
-  font-size: 1.15rem;
-  line-height: 1.2;
+  font-size: 1.05rem;
+  line-height: 1.25;
+  flex: 1;
+  min-width: 0;
 }
 
 .exercise-meta {
-  margin-top: 0.25rem;
   color: var(--muted);
-  font-size: 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
+.set-table {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.set-table-head,
+.set-row-main {
+  display: grid;
+  grid-template-columns: 1.75rem minmax(0, 1fr) 4.25rem 4.25rem;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.set-table-head {
+  padding: 0 0 0.2rem;
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.set-table-head span:nth-child(3),
+.set-table-head span:nth-child(4) {
+  text-align: center;
 }
 
 .set-row {
-  display: grid;
-  gap: 0.55rem;
-  padding: 0.75rem 0;
-  border-top: 1px solid var(--border);
+  position: relative;
+  padding: 0.2rem 0;
 }
 
-.set-row-top {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.5rem 0.75rem;
+.set-row + .set-row {
+  border-top: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  padding-top: 0.4rem;
 }
 
-.set-label {
-  font-weight: 600;
+.set-num {
+  font-weight: 700;
   font-size: 0.9rem;
+  color: var(--muted);
+  text-align: center;
 }
 
 .last-time {
   color: var(--muted);
-  font-size: 0.85rem;
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.set-field {
+  display: block;
+}
+
+.set-field input,
+.note-field input {
+  width: 100%;
+  min-height: 2.55rem;
+  padding: 0.4rem 0.35rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-input);
+  color: var(--text);
+  font-size: 1.05rem;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.set-field input:focus,
+.note-field input:focus {
+  outline: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  border-color: var(--accent);
+}
+
+/* Hide number spinners for cleaner mobile fields */
+.set-field input::-webkit-outer-spin-button,
+.set-field input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.set-field input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.note-field {
+  display: block;
+  margin-top: 0.35rem;
+}
+
+.note-field input {
+  text-align: left;
+  padding-inline: 0.65rem;
+  font-size: 0.95rem;
 }
 
 .save-status {
-  margin-left: auto;
-  font-size: 0.75rem;
+  position: absolute;
+  right: 0;
+  top: -0.15rem;
+  font-size: 0.65rem;
+  color: transparent;
+  pointer-events: none;
+}
+
+.save-status.saving,
+.save-status.saved,
+.save-status.error {
   color: var(--muted);
-  min-height: 1em;
 }
 
 .save-status.saved {
@@ -221,45 +325,16 @@ input {
   color: var(--danger);
 }
 
-.set-inputs {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.6rem;
-}
-
-.set-inputs label,
-.note-field {
-  display: grid;
-  gap: 0.3rem;
-}
-
-.set-inputs label span,
-.note-field span {
-  font-size: 0.75rem;
-  color: var(--muted);
-  font-weight: 500;
-}
-
-.set-inputs input,
-.note-field input {
-  width: 100%;
-  min-height: 3rem;
-  padding: 0.65rem 0.75rem;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: var(--bg-input);
-  color: var(--text);
-  font-size: 1.1rem;
-}
-
-.set-inputs input:focus,
-.note-field input:focus {
-  outline: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
-  border-color: var(--accent);
-}
-
-.note-field {
-  margin-top: 0.15rem;
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .workout-footer {
