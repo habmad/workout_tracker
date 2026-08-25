@@ -91,9 +91,9 @@ export const ROUTINE: WorkoutDay[] = [
       ex("day2", "Chest Dip", "3", "AMAP"),
       ex("day2", "Cable Crossover or Pec Dec", "3", "12-15"),
       ex("day2", "Machine Press or Dumbbell Bench Press", "5 minutes", "Burn"),
-      ex("day2", "EZ Bar Skullcrusher", "3", "8-12"),
-      ex("day2", "Two Arm Seated Dumbbell Extension", "3", "8-12"),
-      ex("day2", "Cable Tricep Extension", "5 minutes", "Burn"),
+      ex("day2", "Reverse cable bar press down", "5 minutes", "Burn"),
+      ex("day2", "Cable bar press down", "3", "8-12"),
+      ex("day2", "Cable Tricep Extension", "3", "8-12"),
     ],
   },
   {
