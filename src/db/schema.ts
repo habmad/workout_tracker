@@ -1,4 +1,5 @@
 import {
+  boolean,
   date,
   integer,
   numeric,
@@ -44,5 +45,17 @@ export const setLogs = pgTable(
   ],
 );
 
+export const exercisePreferences = pgTable("exercise_preferences", {
+  exerciseId: text("exercise_id").primaryKey(),
+  dayId: text("day_id").notNull(),
+  customName: text("custom_name"),
+  sortOrder: integer("sort_order").notNull(),
+  collapsed: boolean("collapsed").notNull().default(false),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
 export type WorkoutSession = typeof workoutSessions.$inferSelect;
 export type SetLog = typeof setLogs.$inferSelect;
+export type ExercisePreference = typeof exercisePreferences.$inferSelect;

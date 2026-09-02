@@ -1,15 +1,21 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { Exercise } from "@/data/routine";
 import type { SetLogDTO } from "@/lib/sessions";
+import type { DisplayExercise } from "@/lib/preference-types";
 
 type Props = {
-  exercise: Exercise;
+  exercise: DisplayExercise;
   sessionId: string;
   currentSets: SetLogDTO[];
   previousSets: SetLogDTO[];
   onSetSaved: (set: SetLogDTO) => void;
+  canMoveUp: boolean;
+  canMoveDown: boolean;
+  onRename: (exerciseId: string, name: string) => void;
+  onToggleCollapse: (exerciseId: string) => void;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
 };
 
 function formatLast(set: SetLogDTO | undefined): string {
@@ -27,6 +33,12 @@ export function ExerciseCard({
   currentSets,
   previousSets,
   onSetSaved,
+  canMoveUp,
+  canMoveDown,
+  onRename,
+  onToggleCollapse,
+  onMoveUp,
+  onMoveDown,
 }: Props) {
   const setCount =
     exercise.kind === "burn" ? 1 : Math.max(exercise.targetSets, 1);
@@ -43,22 +55,118 @@ export function ExerciseCard({
     return map;
   }, [previousSets]);
 
+  const [editing, setEditing] = useState(false);
+  const [draftName, setDraftName] = useState(exercise.name);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (editing) inputRef.current?.focus();
+  }, [editing]);
+
+  const startRename = () => {
+    setDraftName(exercise.name);
+    setEditing(true);
+  };
+
+  const commitRename = () => {
+    setEditing(false);
+    onRename(exercise.id, draftName);
+  };
+
+  const cancelRename = () => {
+    setDraftName(exercise.name);
+    setEditing(false);
+  };
+
   return (
-    <section className="exercise-card">
+    <section
+      className={`exercise-card${exercise.collapsed ? " is-collapsed" : ""}`}
+    >
       <header className="exercise-header">
         <div className="exercise-title-row">
-          <h2>{exercise.name}</h2>
-          <p className="exercise-meta">
-            {exercise.kind === "burn"
-              ? `5 min · ${exercise.targetReps}`
-              : exercise.kind === "amap"
-                ? `${exercise.targetSets} · AMAP`
-                : `${exercise.targetSets} × ${exercise.targetReps}`}
-          </p>
+          <button
+            type="button"
+            className="collapse-btn"
+            aria-expanded={!exercise.collapsed}
+            aria-label={
+              exercise.collapsed
+                ? `Expand ${exercise.name}`
+                : `Collapse ${exercise.name}`
+            }
+            onClick={() => onToggleCollapse(exercise.id)}
+          >
+            <span aria-hidden="true">{exercise.collapsed ? "▸" : "▾"}</span>
+          </button>
+
+          <div className="exercise-title-block">
+            {editing ? (
+              <input
+                ref={inputRef}
+                className="rename-input"
+                value={draftName}
+                aria-label="Exercise name"
+                onChange={(e) => setDraftName(e.target.value)}
+                onBlur={commitRename}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    commitRename();
+                  } else if (e.key === "Escape") {
+                    e.preventDefault();
+                    cancelRename();
+                  }
+                }}
+              />
+            ) : (
+              <h2>
+                <button
+                  type="button"
+                  className="rename-trigger"
+                  onClick={startRename}
+                  title="Rename exercise"
+                >
+                  {exercise.name}
+                </button>
+              </h2>
+            )}
+            <p className="exercise-meta">
+              {exercise.kind === "burn"
+                ? `5 min · ${exercise.targetReps}`
+                : exercise.kind === "amap"
+                  ? `${exercise.targetSets} · AMAP`
+                  : `${exercise.targetSets} × ${exercise.targetReps}`}
+            </p>
+          </div>
+
+          <div className="reorder-controls">
+            <button
+              type="button"
+              className="icon-btn"
+              aria-label={`Move ${exercise.name} up`}
+              disabled={!canMoveUp}
+              onClick={onMoveUp}
+            >
+              ↑
+            </button>
+            <button
+              type="button"
+              className="icon-btn"
+              aria-label={`Move ${exercise.name} down`}
+              disabled={!canMoveDown}
+              onClick={onMoveDown}
+            >
+              ↓
+            </button>
+          </div>
         </div>
       </header>
 
-      <div className="set-table" role="table" aria-label={`${exercise.name} sets`}>
+      <div
+        className="set-table"
+        role="table"
+        aria-label={`${exercise.name} sets`}
+        hidden={exercise.collapsed}
+      >
         <div className="set-table-head" role="row">
           <span role="columnheader">Set</span>
           <span role="columnheader">Last</span>
@@ -66,19 +174,22 @@ export function ExerciseCard({
           <span role="columnheader">kg</span>
         </div>
 
-        {Array.from({ length: setCount }, (_, i) => (
-          <SetRow
-            key={`${exercise.id}-${i}`}
-            label={exercise.kind === "burn" ? "B" : String(i + 1)}
-            lastLabel={formatLast(prevByIndex.get(i))}
-            showNote={exercise.kind === "burn"}
-            initial={byIndex.get(i)}
-            sessionId={sessionId}
-            exerciseId={exercise.id}
-            setIndex={i}
-            onSetSaved={onSetSaved}
-          />
-        ))}
+          {Array.from({ length: setCount }, (_, i) => {
+            const initial = byIndex.get(i);
+            return (
+              <SetRow
+                key={`${exercise.id}-${i}-${initial?.id ?? "empty"}`}
+                label={exercise.kind === "burn" ? "B" : String(i + 1)}
+                lastLabel={formatLast(prevByIndex.get(i))}
+                showNote={exercise.kind === "burn"}
+                initial={initial}
+                sessionId={sessionId}
+                exerciseId={exercise.id}
+                setIndex={i}
+                onSetSaved={onSetSaved}
+              />
+            );
+          })}
       </div>
     </section>
   );
@@ -110,12 +221,6 @@ function SetRow({
     "idle",
   );
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    setReps(initial?.reps?.toString() ?? "");
-    setWeight(initial?.weight?.toString() ?? "");
-    setNote(initial?.note ?? "");
-  }, [initial?.id, initial?.reps, initial?.weight, initial?.note]);
 
   const save = useCallback(
     async (next: { reps: string; weight: string; note: string }) => {
