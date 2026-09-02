@@ -1,9 +1,11 @@
 import Link from "next/link";
+import { AppNav } from "@/components/AppNav";
 import { ROUTINE } from "@/data/routine";
 
 export default function HomePage() {
   return (
     <main className="page home-page">
+      <AppNav />
       <header className="home-hero">
         <p className="brand">Fall 2026</p>
         <h1>Workout</h1>
