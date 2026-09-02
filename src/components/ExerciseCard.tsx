@@ -129,13 +129,15 @@ export function ExerciseCard({
                 </button>
               </h2>
             )}
-            <p className="exercise-meta">
-              {exercise.kind === "burn"
-                ? `5 min · ${exercise.targetReps}`
-                : exercise.kind === "amap"
-                  ? `${exercise.targetSets} · AMAP`
-                  : `${exercise.targetSets} × ${exercise.targetReps}`}
-            </p>
+            {!exercise.collapsed && (
+              <p className="exercise-meta">
+                {exercise.kind === "burn"
+                  ? `5 min · ${exercise.targetReps}`
+                  : exercise.kind === "amap"
+                    ? `${exercise.targetSets} · AMAP`
+                    : `${exercise.targetSets} × ${exercise.targetReps}`}
+              </p>
+            )}
           </div>
 
           <div className="reorder-controls">

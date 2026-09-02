@@ -184,6 +184,14 @@ input {
   margin-bottom: 0;
 }
 
+.exercise-card.is-collapsed .set-table {
+  display: none;
+}
+
+.exercise-card.is-collapsed {
+  padding-bottom: 0.75rem;
+}
+
 .exercise-title-row {
   display: flex;
   align-items: flex-start;
