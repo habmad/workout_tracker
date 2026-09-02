@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { logout } from "@/app/actions/auth";
 
 const LINKS = [
   { href: "/", label: "Workouts" },
@@ -29,6 +30,11 @@ export function AppNav() {
           </Link>
         );
       })}
+      <form action={logout} className="app-nav-logout">
+        <button type="submit" className="app-nav-link app-nav-logout-btn">
+          Lock
+        </button>
+      </form>
     </nav>
   );
 }
